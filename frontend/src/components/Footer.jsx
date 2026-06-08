@@ -22,7 +22,7 @@ const Footer = () => {
   const handleSubscribe = async (e) => {
     e.preventDefault();
     if (!email) {
-      toast.warning("Please enter a valid email address. 📧", { position: "bottom-right" });
+      toast.warning("Please enter a valid email address.", { position: "bottom-right" });
       return;
     }
 

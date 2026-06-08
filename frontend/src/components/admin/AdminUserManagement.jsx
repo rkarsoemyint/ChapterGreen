@@ -1,58 +1,9 @@
 import React from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
 import { RefreshCw, Loader2, Trash2 } from 'lucide-react';
 
-const AdminUserManagement = ({ users, usersLoading, fetchUsers }) => {
-  
-  
-  const handleDeleteUser = (userId, userName) => {
-    const toastId = toast.info(
-      <div className="flex flex-col gap-3 p-1">
-        <p className="text-xs text-slate-800 font-medium">
-          Are you sure you want to delete user 
-          <span className="font-bold text-red-600"> "{userName}"</span>?
-          <br />
-          <span className="text-[10px] text-gray-400 block mt-1">(This action cannot be undone)</span>
-        </p>
 
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={async () => {
-              toast.dismiss(toastId);
-              try {
-                const token = localStorage.getItem("token");
-                await axios.delete(`http://localhost:5000/api/admin/users/${userId}`, {
-                  headers: { Authorization: `Bearer ${token}` }
-                });
-                toast.success(`User "${userName}" deleted successfully`);
-                fetchUsers(); 
-              } catch (err) {
-                toast.error(err.response?.data?.message || "Failed to delete user");
-              }
-            }}
-            className="px-3 py-1 bg-red-600 text-white text-[10px] rounded-md font-bold hover:bg-red-700 transition-colors"
-          >
-            Yes, Delete
-          </button>
-          <button
-            onClick={() => toast.dismiss(toastId)}
-            className="px-3 py-1 bg-gray-100 text-gray-600 text-[10px] rounded-md font-bold hover:bg-gray-200 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>,
-      {
-        position: "top-center",
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: false,
-        draggable: false
-      }
-    );
-  };
-
+const AdminUserManagement = ({ users, usersLoading, fetchUsers, confirmDeleteUser }) => {
+  
   return (
     <div className="bg-white rounded-3xl p-4 sm:p-6 border border-gray-100 shadow-sm overflow-hidden">
      
@@ -80,7 +31,7 @@ const AdminUserManagement = ({ users, usersLoading, fetchUsers }) => {
         </div>
       ) : (
         <>
-          
+          {/* Desktop Table View */}
           <div className="hidden lg:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -116,13 +67,18 @@ const AdminUserManagement = ({ users, usersLoading, fetchUsers }) => {
                     </td>
                     <td className="p-4 text-gray-500">{new Date(u.createdAt).toLocaleDateString()}</td>
                     <td className="p-4 text-center">
-                      <button
-                        onClick={() => handleDeleteUser(u._id, u.name)}
-                        className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                        title="Delete User"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {u.role !== 'admin' ? (
+                        <button
+                          
+                          onClick={(e) => confirmDeleteUser(e, u)}
+                          className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="Delete User"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <span className="text-gray-400 text-xs italic">Master Admin</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -135,7 +91,7 @@ const AdminUserManagement = ({ users, usersLoading, fetchUsers }) => {
             </table>
           </div>
 
-    
+          {/* Mobile Card View */}
           <div className="lg:hidden space-y-4">
             {users.map((u) => (
               <div key={u._id} className="border border-gray-100 rounded-2xl p-4 bg-gray-50/30 shadow-sm">
@@ -155,12 +111,15 @@ const AdminUserManagement = ({ users, usersLoading, fetchUsers }) => {
                     }`}>
                       {u.role}
                     </span>
-                    <button
-                      onClick={() => handleDeleteUser(u._id, u.name)}
-                      className="p-1 text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {u.role !== 'admin' && (
+                      <button
+                       
+                        onClick={(e) => confirmDeleteUser(e, u)}
+                        className="p-1 text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="mb-3">

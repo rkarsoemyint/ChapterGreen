@@ -232,7 +232,6 @@ const AdminDashboard = () => {
   };
 
   const confirmDelete = (book) => {
-    
     const BookConfirmToast = ({ closeToast }) => (
       <div className="p-1">
         <p className="text-xs font-semibold text-gray-800 mb-2.5 leading-relaxed">
@@ -247,18 +246,23 @@ const AdminDashboard = () => {
           </button>
           <button
             onClick={async () => {
-              closeToast();
+              toast.dismiss();
               try {
                 const token = localStorage.getItem('token');
                 await axios.delete(`http://localhost:5000/api/books/${book._id}`, {
                   headers: { Authorization: `Bearer ${token}` }
                 });
                 
-                toast.success("Book deleted successfully!", { position: "top-right" });
+                toast.success("Book deleted successfully!", { 
+                  position: "top-right",
+                  toastId: "book-delete-success"
+                });
                 fetchBooks(); 
               } catch (error) {
                 console.error("Error deleting book:", error);
-                toast.error("Failed to delete book");
+                toast.error("Failed to delete book", {
+                  toastId: "book-delete-error"
+                });
               }
             }}
             className="px-2.5 py-1 rounded-md bg-rose-600 text-white font-medium hover:bg-rose-700 transition-all shadow-xs"
@@ -275,7 +279,8 @@ const AdminDashboard = () => {
       closeOnClick: false,
       draggable: false,
       closeButton: false,    
-      className: "border border-gray-100 shadow-xl rounded-2xl p-4 bg-white"
+      className: "border border-gray-100 shadow-xl rounded-2xl p-4 bg-white",
+      toastId: "book-confirm-popup" 
     });
   };
 
@@ -288,11 +293,9 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` } 
       };
 
-    
       const apiUrl = 'http://localhost:5000/api/categories'; 
 
       if (editingCategory) {
-        
         await axios.put(`${apiUrl}/${editingCategory._id}`, { name: newCategoryName }, config);
         toast.success("Category updated successfully");
       } else {
@@ -326,21 +329,69 @@ const AdminDashboard = () => {
     }
   };
 
-  const confirmDeleteUser = async (user) => {
-    if (window.confirm(`Are you sure you want to delete user account: ${user.name}?`)) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/admin/users/${user._id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        toast.success("User account deleted successfully");
-        fetchUsers();
-      } catch (error) {
-        console.error("Error deleting user:", error);
-        toast.error(error.response?.data?.message || "Failed to delete user");
-      }
+  
+  const confirmDeleteUser = (e, user) => {
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
     }
+
+    const UserConfirmToast = ({ closeToast }) => (
+      <div className="p-1">
+        <p className="text-xs font-semibold text-gray-800 mb-2.5 leading-relaxed">
+          Are you sure you want to delete user <span className="text-rose-600 font-bold">"{user.name}"</span>?
+        </p>
+        <div className="flex justify-end gap-2 text-[11px]">
+          <button
+            onClick={closeToast}
+            className="px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 transition-all"
+          >
+            No
+          </button>
+          <button
+            onClick={async () => {
+              toast.dismiss(); 
+              try {
+                const token = localStorage.getItem('token');
+                const res = await axios.delete(`http://localhost:5000/api/admin/users/${user._id}`, {
+                  headers: { Authorization: `Bearer ${token}` }
+                });
+                
+                if (res.status === 200 || res.status === 204 || res.data?.success) {
+                  
+                  setUsers(prevUsers => prevUsers.filter(u => u._id !== user._id));
+                  
+                  toast.success(`User "${user.name}" deleted successfully!`, { 
+                    position: "top-right",
+                    toastId: `user-delete-success-${user._id}`
+                  });
+                } else {
+                  toast.error("Failed to delete user", { toastId: `user-delete-fail-${user._id}` });
+                }
+              } catch (error) {
+                console.error("Error deleting user:", error);
+                toast.error(error.response?.data?.message || "Failed to delete user", {
+                  toastId: `user-delete-err-${user._id}`
+                });
+              }
+            }}
+            className="px-2.5 py-1 rounded-md bg-rose-600 text-white font-medium hover:bg-rose-700 transition-all shadow-xs"
+          >
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    );
+    
+    toast(<UserConfirmToast />, {
+      position: "top-center",
+      autoClose: false,      
+      closeOnClick: false,
+      draggable: false,
+      closeButton: false,    
+      className: "border border-gray-100 shadow-xl rounded-2xl p-4 bg-white",
+      toastId: `user-confirm-popup-${user._id}` 
+    });
   };
 
 
@@ -359,18 +410,23 @@ const AdminDashboard = () => {
           </button>
           <button
             onClick={async () => {
-              closeToast(); 
+              toast.dismiss(); 
               try {
                 const token = localStorage.getItem('token');
                 await axios.delete(`http://localhost:5000/api/admin/messages/${msg._id}`, {
                   headers: { Authorization: `Bearer ${token}` }
                 });
                 
-                toast.success("Message deleted successfully!", { position: "top-right" });
+                toast.success("Message deleted successfully!", { 
+                  position: "top-right",
+                  toastId: "msg-delete-success"
+                });
                 fetchMessages(); 
               } catch (error) {
                 console.error("Error deleting message:", error);
-                toast.error("Failed to delete message");
+                toast.error("Failed to delete message", {
+                  toastId: "msg-delete-error"
+                });
               }
             }}
             className="px-2.5 py-1 rounded-md bg-rose-600 text-white font-medium hover:bg-rose-700 transition-all shadow-xs"
@@ -387,7 +443,8 @@ const AdminDashboard = () => {
       closeOnClick: false,
       draggable: false,
       closeButton: false,   
-      className: "border border-gray-100 shadow-xl rounded-2xl p-4 bg-white"
+      className: "border border-gray-100 shadow-xl rounded-2xl p-4 bg-white",
+      toastId: "msg-confirm-popup" 
     });
   };
 
@@ -402,7 +459,6 @@ const AdminDashboard = () => {
     
           <div className="bg-gray-100/80 backdrop-blur-xs p-1.5 rounded-2xl flex flex-wrap gap-1 items-center self-start shadow-inner">
             
-          
             <button
               onClick={() => setActiveTab('books')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -526,6 +582,7 @@ const AdminDashboard = () => {
             <AdminUserManagement 
               users={users} 
               setUsers={setUsers} 
+              confirmDeleteUser={confirmDeleteUser} 
             />
           )}
 
