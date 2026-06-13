@@ -24,7 +24,12 @@ connectDB();
 const app = express();
 
 // --- Middleware ---
-app.use(cors());
+app.use(cors({
+    origin: '*', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+    allowedHeaders: ['Content-Type', 'Authorization'], 
+    credentials: true
+}));
 app.use(express.json());
 
 // --- Base Route ---
@@ -44,7 +49,7 @@ app.put('/api/books/:id/rate', protect, rateBook);
 app.get('/api/categories', getCategories);
 app.post('/api/categories', protect, authorize('admin'), createCategory);
 app.put('/api/categories/:id', protect, authorize('admin'), updateCategory);
-  app.delete('/api/categories/:id', protect, authorize('admin'), deleteCategory);
+app.delete('/api/categories/:id', protect, authorize('admin'), deleteCategory);
 
 // --- Auth Routes ---
 app.post('/api/auth/register', register);

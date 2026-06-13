@@ -13,44 +13,18 @@ const About = () => {
     rating: "4.9"
   });
 
-
   useEffect(() => {
     const fetchAboutStats = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const adminConfig = { headers: { Authorization: `Bearer ${token}` } };
-
-      
-        const [categoriesRes, usersRes, ordersRes, booksRes] = await Promise.all([
+        const [categoriesRes, booksRes] = await Promise.all([
           axios.get('http://localhost:5000/api/categories').catch(() => null),
-          axios.get('http://localhost:5000/api/admin/users', adminConfig).catch(() => null),
-          axios.get('http://localhost:5000/api/orders', adminConfig).catch(() => null),
           axios.get('http://localhost:5000/api/books').catch(() => null)
         ]);
-
-     
+    
         const genresCount = categoriesRes?.data?.success 
           ? `${categoriesRes.data.data.length}+` 
           : "20+";
 
-       
-        const readersCount = usersRes?.data?.success 
-          ? `${usersRes.data.data ? usersRes.data.data.length : usersRes.data.length}+` 
-          : "5,000+";
-
-       
-        let soldCount = "10K+";
-        if (ordersRes?.data) {
-          const orders = Array.isArray(ordersRes.data) ? ordersRes.data : (ordersRes.data.data || []);
-          const deliveredCount = orders.filter(o => o.status === 'Delivered').length;
-          if (deliveredCount > 0) {
-            soldCount = `${deliveredCount * 3}+`; 
-          } else if (orders.length > 0) {
-            soldCount = `${orders.length}+`; 
-          }
-        }
-
-        
         let averageRating = "4.9";
         if (booksRes?.data?.success) {
           const books = booksRes.data.data || [];
@@ -61,11 +35,11 @@ const About = () => {
           }
         }
 
-      
+        
         setCounts({
           genres: genresCount,
-          readers: readersCount,
-          booksSold: soldCount,
+          readers: "5,000+",      
+          booksSold: "10K+",     
           rating: averageRating
         });
 

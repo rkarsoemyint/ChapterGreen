@@ -78,7 +78,6 @@ function Navbar() {
 
   return (
     <nav className="bg-white border-b border-gray-100 px-5 lg:px-10 py-4 sticky top-0 z-50">
-
       <div className="grid grid-cols-2 md:grid-cols-3 items-center w-full">
         
         <div className="flex justify-start">
@@ -121,9 +120,9 @@ function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center justify-end space-x-6 text-gray-500">
+        <div className="flex items-center justify-end space-x-4 sm:space-x-6 text-gray-500">
           
-          <div className="relative flex items-center h-9">
+          <div className="relative hidden md:flex items-center h-9">
             <div
               className={`absolute right-full mr-4 transition-all duration-350 ease-in-out transform ${
                 isSearchOpen
@@ -184,7 +183,7 @@ function Navbar() {
                   }`}
                 />
                 {collectionItems?.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+                  <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
                     {collectionItems.length}
                   </span>
                 )}
@@ -196,7 +195,7 @@ function Navbar() {
               >
                 <ShoppingCart className="w-5 h-5" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-green-900 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+                  <span className="absolute -top-2 -right-2 bg-green-900 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
                     {cartCount}
                   </span>
                 )}
@@ -227,7 +226,7 @@ function Navbar() {
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden text-gray-700 justify-self-end"
+            className="md:hidden text-gray-700 justify-self-end flex items-center"
           >
             {mobileMenuOpen ? (
               <X className="w-6 h-6" />
@@ -264,7 +263,7 @@ function Navbar() {
 
           <form
             onSubmit={handleSearchSubmit}
-            className="flex items-center bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"
+            className="flex items-center bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mt-1"
           >
             <input
               type="text"
@@ -302,7 +301,7 @@ function Navbar() {
           {user ? (
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 text-sm font-medium text-red-500 hover:text-red-600"
+              className="flex items-center gap-3 text-sm font-medium text-red-500 hover:text-red-600 pt-2 border-t border-gray-50"
             >
               <LogOut className="w-4 h-4" />
               Logout
